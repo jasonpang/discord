@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.css">
+    <title>Discord</title>
+</head>
+<body>
+<div class="ui container" id="site-container">
+    <h1 class="ui centered header">Discord</h1>
+
+    <div class="ui hidden divider"></div>
+
+    <div class="ui center aligned page grid">
+        <div class="ui segment">
+            <a class="ui ribbon label">Options</a>
+            <form class="ui form">
+                <div class="field">
+                    <label>Song</label>
+                    <div class="ui large white floating dropdown labeled icon button" id="song-dropdown">
+                        <i class="music icon"></i><span class="text">Choose Song</span>
+
+                        <div class="menu">
+                            <div class="ui icon search input">
+                                <i class="search icon"></i>
+                                <input type="text" placeholder="Filter songs...">
+                            </div>
+                            <div class="divider"></div>
+                            <div class="header">
+                                <i class="music icon"></i>
+                                Available Songs
+                            </div>
+                            <div class="scrolling menu">
+                                <div class="item" data-value="colorado.mid">Colorado</div>
+                                <div class="item" data-value="Makiko Hirohashi - Kiki_s Delivery Service.mid">Makiko Hirohashi - Kiki's Delivery Service</div>
+                                <div class="item" data-value="Frozen - Let It Go (PianoItAll).mid">Frozen - Let It Go</div>
+                                <div class="item" data-value="Final Fantasy X - To Zanarkand (PianoSquall).mid">Final Fantasy X - To Zanarkand (PianoSquall)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Options</label>
+                    <div class="ui large toggle checkbox">
+                        <input type="checkbox" id="reverse-track-checkbox">
+                        <label>Reverse track order</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Mode</label>
+                    <div class="ui large white floating dropdown labeled icon button" id="mode-dropdown">
+                        <i class="lab icon"></i><span class="text">Choose Mode</span>
+                        <div class="menu">
+                            <div class="ui icon search input">
+                                <i class="search icon"></i>
+                                <input type="text" placeholder="Filter modes...">
+                            </div>
+                            <div class="divider"></div>
+                            <div class="header">
+                                <i class="lab icon"></i>
+                                Available Modes
+                            </div>
+                            <div class="scrolling menu">
+                                <div class="item" data-value="play">
+                                    <i class="video play icon"></i>Play
+                                </div>
+                                <div class="item" data-value="passthru">
+                                    <i class="exchange icon"></i>Passthrough
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Control</label>
+                    <button class="ui large labeled icon button" id="restart-song">
+                        <i class="repeat icon"></i>
+                        Restart Song
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.6/semantic.min.js" defer></script>
+<script type="text/javascript" src="bundle.js" defer></script>
+</body>
+</html>

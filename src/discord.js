@@ -43,7 +43,9 @@ export default class Discord {
 
     getVoiceNumber(noteNumber) {
         let noteRange = Note.MAX_NUMBER - Note.MIN_NUMBER;
-        let voiceCount = this.song.tracks.length;
+        let voiceCount = 2;
+        if (this.song && this.song.tracks)
+            voiceCount = this.song.tracks.length;
         for (let i = 0; i < voiceCount; i++) {
             let rangeOffset = noteRange / voiceCount;
             let voiceMin = Math.ceil(Note.MIN_NUMBER + (rangeOffset * i));
@@ -116,11 +118,17 @@ export default class Discord {
 
             let recordedNoteOrChord = track[record.noteIndex];
             if (recordedNoteOrChord === undefined) {
+                record.ons = [];
+                record.offs = [];
                 console.warn("Congratulations! You've reached the end of the track! ^_^");
                 return;
             }
             if (recordedNoteOrChord instanceof Chord) {
                 let recordedChord = recordedNoteOrChord.notes;
+                // Sort played keys from lowest key to highest key, in case we play 3 notes out of order (middle finger lands first)
+                recordedChord = recordedChord.sort(function(a, b) {
+                    return a.number - b.number;
+                });
                 log.debug(`Played ${recordedChord.length} notes.`);
                 record.noteIndex++;
                 // If a 5-triad chord is played with 3 fingers, 2 fingers are "missing"
@@ -154,7 +162,7 @@ export default class Discord {
                     }
 
                 } else {
-                    // No fingers missing. For 3-triad chord, use the 3rd-keypress to sound the highest note
+                    // No fingers missing. For 3-triad chord, use the highest keypress to sound the highest note
                     for (let a = 0; a < recordedChord.length; a++) {
                         let playedKey = record.ons.shift();
                         record.heldNotes[playedKey.number] = recordedChord[a].number;
@@ -215,10 +223,12 @@ export default class Discord {
     passThruMode() {
         window.addEventListener('note.on', (note) => {
             note = note.detail;
+            //let voice = this.getVoiceNumber(note.number);
             Midi.play({note: note, duration: 'hold'});
         });
         window.addEventListener('note.off', (note) => {
             note = note.detail;
+            //let voice = this.getVoiceNumber(note.number);
             Midi.endPlay({note: note.number});
         });
         window.addEventListener('controller.change', (cc) => {

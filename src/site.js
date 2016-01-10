@@ -17,7 +17,9 @@ $(function() {
         fetch(`/assets/${fileName}`, fetchOpts).then((response) => {
             return response.blob();
         })
-        .then((buffer) => Song.fromMidiFile(buffer))
+        .then((buffer) => Song.fromMidiFile(buffer, {
+            trackZeroIsNoteData: $('#use-track-zero-checkbox').is(':checked')
+        }))
         .then(song => {
             window.song = song;
             console.info('Song Loaded:', song);

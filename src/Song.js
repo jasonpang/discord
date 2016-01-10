@@ -15,7 +15,7 @@ export default class Song {
         return 35;
     }
 
-    static fromMidiFile(file) {
+    static fromMidiFile(file, options) {
         return new Promise((resolve) => {
             let song = new Song();
             let reader = new FileReader();
@@ -160,9 +160,15 @@ export default class Song {
                 let _notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
                 let allChannels = [];
 
+                if (options.trackZeroIsNoteData) {
+                    var trackIndex = 0;
+                } else {
+                    var trackIndex = 1;
+                }
+
                 // Import the notes for each track
                 let trackCount = midiFile.header.getTracksCount();
-                for (let trackIndex = 1; trackIndex < trackCount; trackIndex++) {
+                for (trackIndex; trackIndex < trackCount; trackIndex++) {
                     let track = new Track();
                     let trackEvents = midiFile.getTrackEvents(trackIndex);
                     trackTime = 0;
@@ -225,6 +231,14 @@ export default class Song {
                     console.warn("It seems this track used multiple channels, so we're going to split the song by channel.");
                 }
 
+                for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+                    let track = song.tracks[trackIndex];
+                    for (let objectIndex = 0; objectIndex < track.objects.length - 1; objectIndex++) {
+                        let note = track.objects[objectIndex];
+                        //note *= 250;
+                    }
+                }
+
                 // We're done reading from the MIDI file, now let's convert notes occurring at the same time to chords
                 for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
                     let finalObjects = [];
@@ -240,6 +254,9 @@ export default class Song {
                         let nextNoteCopy = nextNote;
                         let chord = new Chord();
                         chord.add(noteCopy);
+                        if (nextNoteCopy === undefined || noteCopy === undefined) {
+                            debugger;
+                        }
                         while (nextNoteCopy.time - noteCopy.time <= Song.CHORD_DELAY_INTERVAL) {
                             chord.add(nextNoteCopy);
                             chordLength++;
@@ -253,7 +270,7 @@ export default class Song {
                             finalObjects.push(note);
                         } else if (chordLength > 1) {
                             // Sort chords from lowest key to highest key
-                            Object.keys(chord).sort(function (a, b) {
+                            chord.notes = chord.notes.sort(function(a, b) {
                                 return a.number - b.number;
                             });
                             finalObjects.push(chord);

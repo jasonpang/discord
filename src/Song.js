@@ -231,11 +231,33 @@ export default class Song {
                     console.warn("It seems this track used multiple channels, so we're going to split the song by channel.");
                 }
 
+                let numNotesDeleted = 0;
                 for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
                     let track = song.tracks[trackIndex];
-                    for (let objectIndex = 0; objectIndex < track.objects.length - 1; objectIndex++) {
+                    for (let objectIndex = track.objects.length - 1; objectIndex > 0; objectIndex--) {
+                    //for (let objectIndex = 0; objectIndex < track.objects.length - 1; objectIndex++) {
                         let note = track.objects[objectIndex];
-                        //note *= 250;
+                        if (!note.duration) {
+                            track.objects.splice(objectIndex, 1);
+                            numNotesDeleted++;
+                        }
+                    }
+                }
+                log.debug(`Deleted ${numNotesDeleted} notes.`);
+
+                if (options.perfectMidi) {
+                    let explodeBy = 250;
+                    for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+                        let track = song.tracks[trackIndex];
+                        for (let objectIndex = 0; objectIndex < track.objects.length; objectIndex++) {
+                            let note = track.objects[objectIndex];
+                            note.time *= explodeBy;
+                            note.duration *= explodeBy;
+                            let beat = (note.time / explodeBy) / song.ticksPerBeat;
+                            let numBeatsInMeasure = 4 * song.timeSignatureNumerator / song.timeSignatureDenominator;
+                            let finalValue = (beat / numBeatsInMeasure) + 1;
+                            note.measure = finalValue;
+                        }
                     }
                 }
 
@@ -244,7 +266,7 @@ export default class Song {
                     let finalObjects = [];
                     let numNotesConverted = 0;
                     let existingTotalNotes = song.tracks[trackIndex].objects.length;
-                    for (let objectIndex = 0; objectIndex < song.tracks[trackIndex].objects.length - 1; objectIndex++) {
+                    for (let objectIndex = 0; objectIndex < song.tracks[trackIndex].objects.length; objectIndex++) {
                         let note = song.tracks[trackIndex].objects[objectIndex];
                         let nextNote = song.tracks[trackIndex].objects[objectIndex + 1];
 
@@ -273,6 +295,7 @@ export default class Song {
                             chord.notes = chord.notes.sort(function(a, b) {
                                 return a.number - b.number;
                             });
+                            chord.measure = chord.notes[0].measure;
                             finalObjects.push(chord);
                             numNotesConverted++;
                             objectIndex += chordLength - 1; // skip notes
@@ -286,3 +309,30 @@ export default class Song {
         });
     }
 }
+
+window.r = function r(a, b) {
+    if (!b) {
+        // Switch to measure
+        for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+            for (let objectIndex = 0; objectIndex < song.tracks[trackIndex].objects.length; objectIndex++) {
+                let obj = song.tracks[trackIndex].objects[objectIndex];
+                if (obj.measure >= a) {
+                    //debugger;
+                    record.tracks[trackIndex].noteIndex = objectIndex;
+                    break;
+                }
+            }
+        }
+    } else {
+        // Switch to note indices
+        record.tracks[0].noteIndex = a;
+        record.tracks[1].noteIndex = b;
+    }
+}
+
+window.p = function p() {
+    let bassObj = song.tracks[0].objects[record.tracks[0].noteIndex];
+    let trebleObj = song.tracks[1].objects[record.tracks[1].noteIndex];
+    log.debug(`Measure Number: ${bassObj.measure}, ${trebleObj.measure}`);
+    log.debug(`Note Indices: ${record.tracks[0].noteIndex}, ${record.tracks[1].noteIndex}`);
+};

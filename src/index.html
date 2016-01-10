@@ -18,6 +18,21 @@
             <a class="ui ribbon label">Options</a>
             <form class="ui form">
                 <div class="field">
+                    <label>Pre-Load Options</label>
+                </div>
+                <div class="field">
+                    <div class="ui large toggle checkbox">
+                        <input type="checkbox" id="use-track-zero-checkbox">
+                        <label>Treat track 0 as note data</label>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui large toggle checkbox">
+                        <input type="checkbox" id="perfect-midi-checkbox">
+                        <label>MIDI data is timed perfectly</label>
+                    </div>
+                </div>
+                <div class="field">
                     <label>Song</label>
                     <div class="ui large white floating dropdown labeled icon button" id="song-dropdown">
                         <i class="music icon"></i><span class="text">Choose Song</span>
@@ -53,19 +68,13 @@
                     </div>
                 </div>
                 <div class="field">
-                    <label>Options</label>
+                    <label>Post-Load Options</label>
                 </div>
                 <div class="field">
                     <div class="ui large toggle checkbox">
                         <input type="checkbox" id="reverse-track-checkbox">
                         <label>Reverse track order</label>
                     </div>
-                </div>
-                <div class="field">
-                <div class="ui large toggle checkbox">
-                    <input type="checkbox" id="use-track-zero-checkbox">
-                    <label>Treat track 0 as note data</label>
-                </div>
                 </div>
                 <div class="field">
                     <label>Mode</label>

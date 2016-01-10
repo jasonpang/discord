@@ -18,7 +18,8 @@ $(function() {
             return response.blob();
         })
         .then((buffer) => Song.fromMidiFile(buffer, {
-            trackZeroIsNoteData: $('#use-track-zero-checkbox').is(':checked')
+            trackZeroIsNoteData: $('#use-track-zero-checkbox').is(':checked'),
+            perfectMidi: $('#perfect-midi-checkbox').is(':checked')
         }))
         .then(song => {
             window.song = song;

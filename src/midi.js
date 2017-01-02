@@ -115,8 +115,6 @@ export default class Midi {
     }
 
     static play({note, number = note.number, velocity = note.velocity, duration = note.duration, channels = Midi.outputFilter.channel || "all", outputs = Midi.outputFilter.output, when = 0} = {}) {
-
-        log.debug('Playing on channel', channels);
         WebMidi.playNote(number, velocity, duration === 'hold' ? undefined : duration, outputs, channels, '+' + when);
     }
 

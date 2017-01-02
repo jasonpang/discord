@@ -3,6 +3,8 @@ import './events-polyfill.js';
 import Discord from './discord.js';
 import log from 'loglevel';
 import Song from './Song.js';
+import Midi from './midi.js';
+import Note from './Note.js';
 
 log.setDefaultLevel('trace');
 
@@ -42,6 +44,7 @@ $(function() {
     });
 
     $('#reverse-track-checkbox').change(function() {
+        window.reverseTrack = true;
         let firstTrack = window.song.tracks[0];
         window.song.tracks[0] = window.song.tracks[1];
         window.song.tracks[1] = firstTrack;
@@ -51,6 +54,15 @@ $(function() {
         e.preventDefault();
         if (window.discord) {
             window.discord.restart();
+        }
+    });
+
+    $('#send-midi').click(function(e) {
+        e.preventDefault();
+        if (window.discord) {
+             
+        } else {
+            log.info('Discord not initialized yet.');
         }
     });
 });

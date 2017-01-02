@@ -232,7 +232,7 @@ export default class Song {
                 }
 
                 let numNotesDeleted = 0;
-                for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+                for (var trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
                     let track = song.tracks[trackIndex];
                     for (let objectIndex = track.objects.length - 1; objectIndex > 0; objectIndex--) {
                     //for (let objectIndex = 0; objectIndex < track.objects.length - 1; objectIndex++) {
@@ -246,8 +246,8 @@ export default class Song {
                 log.debug(`Deleted ${numNotesDeleted} notes.`);
 
                 if (options.perfectMidi) {
-                    let explodeBy = 250;
-                    for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+                    let explodeBy = 2500;
+                    for (var trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
                         let track = song.tracks[trackIndex];
                         for (let objectIndex = 0; objectIndex < track.objects.length; objectIndex++) {
                             let note = track.objects[objectIndex];
@@ -262,13 +262,17 @@ export default class Song {
                 }
 
                 // We're done reading from the MIDI file, now let's convert notes occurring at the same time to chords
-                for (let trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
+                for (var trackIndex = 0; trackIndex < song.tracks.length; trackIndex++) {
                     let finalObjects = [];
                     let numNotesConverted = 0;
                     let existingTotalNotes = song.tracks[trackIndex].objects.length;
                     for (let objectIndex = 0; objectIndex < song.tracks[trackIndex].objects.length; objectIndex++) {
                         let note = song.tracks[trackIndex].objects[objectIndex];
                         let nextNote = song.tracks[trackIndex].objects[objectIndex + 1];
+                        if (!nextNote) {
+                            finalObjects.push(note);
+                            break;
+                        }
 
                         let chordLength = 1;
                         let indexCopy = objectIndex;
@@ -304,6 +308,14 @@ export default class Song {
                     log.debug(`Track ${trackIndex}: Converted ${numNotesConverted} / ${existingTotalNotes} notes to chords.`);
                     song.tracks[trackIndex].objects = finalObjects;
                 }
+
+                for (let i = song.tracks.length - 1; i >= 0; i--) {
+                    if (song.tracks[i].objects.length <= 0) {
+                        log.debug('Deleting track', i, 'because it contained 0 notes.');
+                        song.tracks.splice(i, 1);
+                    }
+                }
+
                 resolve(song);
             };
         });

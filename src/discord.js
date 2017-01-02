@@ -84,7 +84,7 @@ export default class Discord {
         });
         window.addEventListener('controller.change', (cc) => {
             cc = cc.detail;
-            Midi.controller({controller: cc.controller, value: cc.value, channels: 'all'});
+            Midi.controller({controller: cc.controller, value: cc.value});
         });
         
         for (var i = 0; i < this.song.tracks.length; i++) {
@@ -102,7 +102,21 @@ export default class Discord {
         }
     }
 
+    play({note, number, velocity, duration, channels = Midi.outputFilter.channel || "all", outputs = Midi.outputFilter.output, when = 0} = {}) {
+        Midi.play({
+            note: firstPlayedKey,
+            number: recordedChord[b].number,
+            duration: 'hold',
+            channels: voice + 1
+        });
+    }
+
     playMode_process(voice) {
+        if (window.reverseTrack) {
+            var trueVoice = voice;
+        } else {
+            var trueVoice = voice;
+        }
         let track = this.song.tracks[voice].objects;
         let record = this.record.tracks[voice];
         if (!record.ons) {
@@ -129,36 +143,67 @@ export default class Discord {
                 recordedChord = recordedChord.sort(function(a, b) {
                     return a.number - b.number;
                 });
-                log.debug(`Played ${recordedChord.length} notes.`);
                 record.noteIndex++;
                 // If a 5-triad chord is played with 3 fingers, 2 fingers are "missing"
                 let fingersMissingCount = recordedChord.length - record.ons.length;
                 if (fingersMissingCount > 0) {
                     let firstPlayedKey;
-                    for (let a = 0; a < record.ons.length; a++) {
-                        if (a === 0) {
-                            firstPlayedKey = record.ons[a];
+                    if (trueVoice === 1) {
+                        for (let a = 0; a < record.ons.length; a++) {
+                            if (a === 0) {
+                                firstPlayedKey = record.ons[a];
+                            }
+                            let playedKey = record.ons.shift();
+                            record.heldNotes[playedKey.number] = recordedChord[a + fingersMissingCount].number;
+                            Midi.play({
+                                note: playedKey,
+                                number: recordedChord[a + fingersMissingCount].number,
+                                velocity: playedKey.velocity,
+                                duration: 'hold',
+                                channels: voice + 1
+                            });
+                            log.debug(`${playedKey.name}: ${playedKey.velocity * 1.05} (Treble)*`);
                         }
-                        let playedKey = record.ons.shift();
-                        record.heldNotes[playedKey.number] = recordedChord[a + fingersMissingCount].number;
-                        Midi.play({
-                            note: playedKey,
-                            number: recordedChord[a + fingersMissingCount].number,
-                            duration: 'hold',
-                            channels: voice + 1
-                        });
-                        log.debug(`Played ${recordedChord[a + fingersMissingCount].number}`);
-                    }
-                    record.heldNotes[firstPlayedKey.number] = [record.heldNotes[firstPlayedKey.number]];
-                    for (let b = 0; b < fingersMissingCount; b++) {
-                        record.heldNotes[firstPlayedKey.number].push(recordedChord[b].number);
-                        Midi.play({
-                            note: firstPlayedKey,
-                            number: recordedChord[b].number,
-                            duration: 'hold',
-                            channels: voice + 1
-                        });
-                        log.debug(`Played extra ${recordedChord[b].number}`);
+                        record.heldNotes[firstPlayedKey.number] = [record.heldNotes[firstPlayedKey.number]];
+                        for (let b = 0; b < fingersMissingCount; b++) {
+                            record.heldNotes[firstPlayedKey.number].push(recordedChord[b].number);
+                            Midi.play({
+                                note: firstPlayedKey,
+                                number: recordedChord[b].number,
+                                velocity: firstPlayedKey.velocity,
+                                duration: 'hold',
+                                channels: voice + 1
+                            });
+                            log.debug(`${recordedChord[b].name}: ${firstPlayedKey.velocity} (Treble)`);
+                        }
+                    } else if (trueVoice === 0) {
+                        for (let a = 0; a < record.ons.length; a++) {
+                            if (a === 0) {
+                                firstPlayedKey = record.ons[a];
+                            }
+                            let playedKey = record.ons.shift();
+                            record.heldNotes[playedKey.number] = recordedChord[a].number;
+                            Midi.play({
+                                note: playedKey,
+                                number: recordedChord[a].number,
+                                velocity: firstPlayedKey.velocity,
+                                duration: 'hold',
+                                channels: voice + 1
+                            });
+                            log.debug(`${playedKey.name}: ${playedKey.velocity} (Bass)*`);
+                        }
+                        record.heldNotes[firstPlayedKey.number] = [record.heldNotes[firstPlayedKey.number]];
+                        for (let b = record.ons.length + 1; b < fingersMissingCount + 1; b++) {
+                            record.heldNotes[firstPlayedKey.number].push(recordedChord[b].number);
+                            Midi.play({
+                                note: firstPlayedKey,
+                                number: recordedChord[b].number,
+                                velocity: firstPlayedKey.velocity,
+                                duration: 'hold',
+                                channels: voice + 1
+                            });
+                            log.debug(`${recordedChord[b].name}: ${firstPlayedKey.velocity} (Bass)`);
+                        }
                     }
 
                 } else {

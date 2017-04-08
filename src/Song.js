@@ -213,13 +213,16 @@ export default class Song {
                             if (!event.note)
                                 continue;
                             let targetIndex = tempHeldNotes[event.note];
-                            if (targetIndex === null) {
+                            if (targetIndex === null || targetIndex === undefined) {
                                 console.warn(`Ignoring a Note Off event that was fired for a note that was never played.`);
                                 continue;
                             }
                             tempHeldNotes[event.note] = null;
                             let note = track.objects[targetIndex];
                             note.duration = trackTime - note.time;
+                        }
+                        else if (event.type === "End of Track") {
+
                         }
                     }
                     song.tracks.push(track);

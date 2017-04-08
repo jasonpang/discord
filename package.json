@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Play a piano song by pressing all the wrong keys.",
   "main": "src/entry.js",
-  "dependencies": {},
+  "dependencies": {
+    "setimmediate": "^1.0.5"
+  },
   "devDependencies": {
     "babel": "^6.1.18",
     "babel-core": "^6.2.1",

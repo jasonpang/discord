@@ -4,9 +4,13 @@ import Song from './Song.js';
 import Track from './Track.js';
 import log from 'loglevel';
 import Chord from './Chord.js';
+import 'setimmediate';
 
 export default class Discord {
     constructor(mode, song, options = {}) {
+
+        window.Midi = Midi;
+        console.log("Initializing Discord()..");
         this.song = song;
         this.options = options;
         if (mode === 'play' || mode === 'passthru') {
@@ -58,7 +62,7 @@ export default class Discord {
 
     playMode() {
         this.record = new Song();
-        for (let i of this.song.tracks) 
+        for (let i of this.song.tracks)
             this.record.tracks.push(new Track());
         for (let i = 0; i < this.record.tracks.length; i++) {
             this.record.tracks[i].lastPlayTime = 0;
@@ -86,9 +90,9 @@ export default class Discord {
             cc = cc.detail;
             Midi.controller({controller: cc.controller, value: cc.value});
         });
-        
+
         for (var i = 0; i < this.song.tracks.length; i++) {
-            setInterval(this.playMode_process.bind(this, i), 1);
+            setTimeout(this.playMode_process.bind(this, i), 0);
         }
     }
 
@@ -120,7 +124,7 @@ export default class Discord {
         let track = this.song.tracks[voice].objects;
         let record = this.record.tracks[voice];
         if (!record.ons) {
-            // No note has been played yet, this array is only defined on first note press
+            setImmediate(this.playMode_process.bind(this, voice), 0);
             return;
         }
         while (record.ons.length > 0) {
@@ -263,6 +267,7 @@ export default class Discord {
             }
             record.offs.shift();
         }
+      setImmediate(this.playMode_process.bind(this, voice), 0);
     }
 
     passThruMode() {

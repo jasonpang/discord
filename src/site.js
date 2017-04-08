@@ -5,6 +5,7 @@ import log from 'loglevel';
 import Song from './Song.js';
 import Midi from './midi.js';
 import Note from './Note.js';
+require("setimmediate");
 
 log.setDefaultLevel('trace');
 
